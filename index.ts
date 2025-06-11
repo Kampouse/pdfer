@@ -78,12 +78,49 @@ async function createPdfFromImages(imagePaths: string[], outputPath: string) {
   console.log("🎉 PDF created from images and saved to", outputPath);
 }
 
+// Step 4: Cleaning up temporary image files
+async function cleanupImageFiles(imagePaths: string[]) {
+  console.log(`🧹 Cleaning up temporary JPEG files...`);
+
+  for (let i = 0; i < imagePaths.length; i++) {
+    const imagePath = imagePaths[i];
+    try {
+      fs.unlinkSync(imagePath);
+      console.log(`🗑️ Removed temporary file: ${imagePath}`);
+    } catch (error) {
+      console.warn(`⚠️ Failed to remove file ${imagePath}:`, error);
+    }
+  }
+
+  console.log(`✨ Cleanup completed. All temporary JPEG files removed.`);
+}
+
 // Main function to execute the steps
 (async () => {
   try {
     console.log(`🚀 Starting PDF processing...`);
-    const pdfPath = "6761691-EASA-6.pdf";
-    const outputPdfPath = "output-from-images.pdf";
+
+    // Get command line arguments
+    const args = process.argv.slice(2);
+
+    // Show usage information if no arguments provided
+    if (args.length === 0) {
+      console.log(`
+📋 Usage:
+  ts-node index.ts <input-pdf-path> [output-pdf-path]
+
+📝 Example:
+  ts-node index.ts document.pdf output.pdf
+
+🔍 Parameters:
+  - input-pdf-path: Path to the PDF file to process (required)
+  - output-pdf-path: Path for the output PDF file (optional, defaults to "output-from-images.pdf")
+      `);
+      process.exit(1);
+    }
+
+    const pdfPath = args[0];
+    const outputPdfPath = args.length > 1 ? args[1] : "output-from-images.pdf";
 
     console.log(`📂 Input file: ${pdfPath}`);
     console.log(`📂 Output file: ${outputPdfPath}`);
@@ -92,8 +129,11 @@ async function createPdfFromImages(imagePaths: string[], outputPath: string) {
     const imagePaths = await convertPdfToImages(pdfPath);
 
     // Create new PDF from images
-    if (imagePaths) {
+    if (imagePaths.length > 0) {
       await createPdfFromImages(imagePaths, outputPdfPath);
+
+      // Clean up temporary image files
+      await cleanupImageFiles(imagePaths);
     }
 
     console.log(`✨ Process completed successfully!`);
