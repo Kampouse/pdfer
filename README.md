@@ -23,3 +23,6 @@ To install the system dependencies on various platforms:
 - **Ubuntu/Debian**: `sudo apt-get install graphicsmagick ghostscript`
 - **macOS**: `brew install graphicsmagick ghostscript`
 - **Windows**: Download and install from their respective websites
+
+Docker : docker build -t pdfer . && docker run -p 3000:3000 pdfer
+curl -X POST -F 'file=@6761691-EASA-6.pdf' http://localhost:3000/optimize --output optimized.pdf c
